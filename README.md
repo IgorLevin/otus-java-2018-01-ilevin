@@ -1,2 +1,7 @@
-# otus-java-2018-01-ilevin
-OTUS java course
+Курс "Разработчик Java" в OTUS
+
+Группа 2018-01
+
+Igor Levin (Игорь Левин)
+
+ilevin.office@gmail.com
