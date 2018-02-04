@@ -5,5 +5,3 @@
 Igor Levin (Игорь Левин)
 
 ilevin.office@gmail.com
-
-Changes for branch 
