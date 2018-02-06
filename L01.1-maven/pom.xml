@@ -7,11 +7,12 @@
     <!-- Project Object Model -->
 
     <name>L01.1-maven</name>
-    <description>homework L01</description>
+    <description>OTUS Java course homework - L01</description>
 
     <developers>
         <developer>
             <name>ilevin</name>
+            <email>ilevin.office@gmail.com</email>
         </developer>
     </developers>
 
@@ -27,14 +28,29 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <com.google.guava.version>23.0</com.google.guava.version>
+        <proguard.version>6.0</proguard.version>
     </properties>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>com.google.guava</groupId>-->
-            <!--<artifactId>guava</artifactId>-->
-            <!--<version>${com.google.guava.version}</version>-->
-        <!--</dependency>-->
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${com.google.guava.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.proguard</groupId>
+            <artifactId>proguard-base</artifactId>
+            <version>${proguard.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
     </dependencies>
 
 
@@ -94,15 +110,17 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <obfuscate>false</obfuscate>
-                    <injar>${project.build.finalName}.jar</injar>
-                    <outar>${project.build.finalName}_PG.jar</outar>
-                    <options>
-                        <option>-allowaccessmodification</option>
-                    </options>
                     <libs>
-                        <lib>${java.home}\lib\rt.java</lib>
+                        <lib>${java.home}/lib/rt.jar</lib>
                     </libs>
+                    <options>
+                        <option>-keep class ch.qos.logback.** { *; }</option>
+                        <option>-keep class org.slf4j.** { *; }</option>
+                        <option>-dontwarn</option>
+                        <option>-keepclasseswithmembers public class * { public static void main(java.lang.String[]); }</option>
+                        <option>-keepattributes Signature</option>
+                        <option>-keepattributes *Annotation*</option>
+                    </options>
                 </configuration>
             </plugin>
 

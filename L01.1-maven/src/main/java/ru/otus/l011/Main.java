@@ -1,6 +1,9 @@
 package ru.otus.l011;
 
-//import com.google.common.collect.Lists;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -26,6 +29,9 @@ import java.util.*;
  * mvn clean compile assembly:single
  */
 public class Main {
+
+    private static Logger log = LoggerFactory.getLogger(Main.class);
+
     private static final int MEASURE_COUNT = 1;
 
     public static void main(String... args) {
@@ -37,12 +43,21 @@ public class Main {
         }
 
         List<Integer> result = new ArrayList<>();
+
+        log.debug("Going to shuffle");
         Collections.shuffle((List<Integer>)example);
-        calcTime(() -> result.addAll(
-                //Lists.reverse(
-                        (List<Integer>)example)
-                //)
-        );
+
+        log.debug("Starting time measurement");
+        calcTime(() -> result.addAll(Lists.reverse((List<Integer>)example)));
+
+        log.debug("Find frequency");
+        Iterable<Integer> unionData = Iterables.concat(example, result);
+        for (int i = min; i < 5; i++) {
+            if (Iterables.frequency(unionData, i) != 2) {
+                log.error("Collection has issue with element {}", i);
+            }
+        }
+        log.debug("The end");
     }
 
     private static void calcTime(Runnable runnable) {
