@@ -41,12 +41,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sf.proguard</groupId>
-            <artifactId>proguard-base</artifactId>
-            <version>${proguard.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
@@ -97,34 +91,6 @@
                     </archive>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>com.github.wvengen</groupId>
-                <artifactId>proguard-maven-plugin</artifactId>
-                <version>2.0.14</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>proguard</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <libs>
-                        <lib>${java.home}/lib/rt.jar</lib>
-                    </libs>
-                    <options>
-                        <option>-keep class ch.qos.logback.** { *; }</option>
-                        <option>-keep class org.slf4j.** { *; }</option>
-                        <option>-dontwarn</option>
-                        <option>-keepclasseswithmembers public class * { public static void main(java.lang.String[]); }</option>
-                        <option>-keepattributes Signature</option>
-                        <option>-keepattributes *Annotation*</option>
-                    </options>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 
