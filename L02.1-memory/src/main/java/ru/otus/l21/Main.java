@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * VM options -Xmx512m -Xms512m
@@ -38,61 +37,203 @@ public class Main {
         Runtime runtime = Runtime.getRuntime();
         log.info("Free memory: {}", runtime.freeMemory());
 
+        analyzeSimpleTypes();
+
+        // Prepare data source for Collection and Map
+        CollectionTestElement[] srcCollection = new CollectionTestElement[SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            srcCollection[i] = new CollectionTestElement();
+        }
+
+        analyzeCollections(srcCollection);
+
+        analyzeMaps(srcCollection);
+
+        log.info("Done");
+    }
+
+    private static void analyzeSimpleTypes() throws Exception {
+        log.info("");
+        log.info(" *** Simple Types ***");
+
+        freeMem();
+
         log.info("");
         log.info("[ Object() ]");
         printClassInstanceInfo(Object::new);
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
 
         log.info("");
         log.info("[ Integer(0) ]");
         printClassInstanceInfo(() -> (0));
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
 
         log.info("");
         log.info("[ Integer(129) ]");
         printClassInstanceInfo(() -> (129));
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
 
         log.info("");
         log.info("[ Double(0.0) ]");
         printClassInstanceInfo(() -> (0.0d));
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
 
         log.info("");
         log.info("[ String(\"\") ]");
         printClassInstanceInfo(() -> new String(""));
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
 
         log.info("");
         log.info("[ String(new char[0]) ]");
         printClassInstanceInfo(() -> new String(new char[0]));
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
 
         log.info("");
         log.info("[ MyClass() ]");
         printClassInstanceInfo(MyClass::new);
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
 
         log.info("");
         log.info("[ MyClass2() ]");
         printClassInstanceInfo(MyClass2::new);
 
-        Thread.sleep(1000); //wait for 1 sec
+        Thread.sleep(1000);
         freeMem();
+    }
+
+    private static void analyzeCollections(CollectionTestElement[] srcCollection) throws Exception {
+
+        log.info("");
+        log.info(" *** Collections ***");
+
+        freeMem();
+
+        log.info("");
+        log.info("[ ArrayList() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new ArrayList<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ LinkedList() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new LinkedList<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ Vector() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new Vector<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ Stack() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new Stack<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ HashSet() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new HashSet<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ LinkedHashSet() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new LinkedHashSet<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ TreeSet() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new TreeSet<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ PriorityQueue() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new PriorityQueue<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ PriorityQueue() ]");
+        printCollectionMemoryUsagePerElement(srcCollection, new ArrayDeque<>());
+
+        Thread.sleep(1000);
+        freeMem();
+    }
+
+    private static void analyzeMaps(CollectionTestElement[] srcCollection) throws Exception {
+
+        log.info("");
+        log.info(" *** Maps ***");
+
+        freeMem();
+
+        log.info("");
+        log.info("[ HashMap() ]");
+        printMapMemoryUsagePerElement(srcCollection, new HashMap<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ LinkedHashMap() ]");
+        printMapMemoryUsagePerElement(srcCollection, new LinkedHashMap<>());
+
+        Thread.sleep(1000);
+        freeMem();
+
+        log.info("");
+        log.info("[ TreeMap() ]");
+        printMapMemoryUsagePerElement(srcCollection, new TreeMap<>());
+
+        Thread.sleep(1000);
+        freeMem();
+    }
+
+    private static void printCollectionMemoryUsagePerElement(CollectionTestElement[] src, Collection<CollectionTestElement> collection) {
+
+        Runtime runtime = Runtime.getRuntime();
+        long mem1 = runtime.totalMemory() - runtime.freeMemory();
+        collection.addAll(Arrays.asList(src).subList(0, SIZE));
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
+
+        log.info("Average {} element size: {}", collection.getClass().getName(), (float)(mem2 - mem1)/collection.size());
+    }
+
+    private static void printMapMemoryUsagePerElement(CollectionTestElement[] src, Map<CollectionTestElement, CollectionTestElement> map) {
+        Runtime runtime = Runtime.getRuntime();
+        long mem1 = runtime.totalMemory() - runtime.freeMemory();
+        for (int i = 0; i < src.length; i++) {
+               map.put(src[i], src[i]);
+        }
+        long mem2 = runtime.totalMemory() - runtime.freeMemory();
+
+        log.info("Average {} element size: {}", map.getClass().getName(), (float)(mem2 - mem1)/map.size());
     }
 
     private static void printClassInstanceInfo(InstanceCreator instr) {
@@ -152,5 +293,22 @@ public class Main {
 
     private static class MyClass2 extends MyClass {
         private double d = 123.456d;
+    }
+
+    private static class CollectionTestElement implements Comparable <CollectionTestElement> {
+        private long l = 1;
+
+        CollectionTestElement() {
+            l = System.nanoTime();
+        }
+
+        @Override
+        public int compareTo(CollectionTestElement o) {
+            if (this == o) {
+                return 0;
+            }
+            long diff = this.l - o.l;
+            return (diff <= 0) ? -1 : 1;
+        }
     }
 }
