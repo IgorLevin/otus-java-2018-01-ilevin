@@ -15,7 +15,7 @@ public class MyArrayList<T> implements List<T> {
     private MyArrayList<T> parent;
 
     public MyArrayList() {
-        values = (T[])new Object[16];
+        values = (T[])new Object[INITIAL_CAPACITY];
         startView = 0;
         endView = startView;
     }
