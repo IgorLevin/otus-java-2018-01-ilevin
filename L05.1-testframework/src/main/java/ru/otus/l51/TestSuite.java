@@ -38,6 +38,7 @@ public class TestSuite {
     @Test
     public void test2Method() {
         log.info("test 2 called");
+        //CustomAssert.fail();
     }
 
 }
