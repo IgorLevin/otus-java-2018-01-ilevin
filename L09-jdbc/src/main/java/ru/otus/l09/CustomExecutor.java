@@ -41,28 +41,29 @@ public class CustomExecutor {
 
         String tableName = getTableName(clazz);
 
-        try (Statement st = connection.createStatement()) {
-            st.execute("SELECT * FROM " + tableName + " WHERE id=" + id);
+        try (PreparedStatement pst = connection.prepareStatement("SELECT * FROM " + tableName + " WHERE id=?")) {
+            pst.setLong(1, id);
 
-            ResultSet rs = st.getResultSet();
-            ResultSetMetaData md = rs.getMetaData();
+            try (ResultSet rs = pst.getResultSet()) {
+                ResultSetMetaData md = rs.getMetaData();
 
-            T dataSet = clazz.getConstructor().newInstance();
-            dataSet.setId(id);
-            while (rs.next()) {
-                for (int i = 1; i <= md.getColumnCount(); i++) {
-                    try {
-                        Field f = clazz.getDeclaredField(md.getColumnName(i).toLowerCase());
-                        if (!f.isAccessible()) {
-                            f.setAccessible(true);
+                T dataSet = clazz.getConstructor().newInstance();
+                dataSet.setId(id);
+                while (rs.next()) {
+                    for (int i = 1; i <= md.getColumnCount(); i++) {
+                        try {
+                            Field f = clazz.getDeclaredField(md.getColumnName(i).toLowerCase());
+                            if (!f.isAccessible()) {
+                                f.setAccessible(true);
+                            }
+                            f.set(dataSet, getColumnValue(rs, md.getColumnType(i), i));
+                        } catch (NoSuchFieldException e) {
+                            log.warn("Getting class field error", e);
                         }
-                        f.set(dataSet, getColumnValue(rs, md.getColumnType(i), i));
-                    } catch (NoSuchFieldException e) {
-                        log.warn("Getting class field error", e);
                     }
                 }
+                return dataSet;
             }
-            return dataSet;
         }
     }
 
@@ -105,8 +106,9 @@ public class CustomExecutor {
             log.trace("Statement: {}", sb.toString());
             st.execute(sb.toString());
 
-            ResultSet rs = st.getResultSet();
-            return rs.next();
+            try (ResultSet rs = st.getResultSet()) {
+                return rs.next();
+            }
 
         } catch (SQLException e) {
             log.error("Checking if row exists error ", e);

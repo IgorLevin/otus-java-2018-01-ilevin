@@ -8,7 +8,7 @@ import java.sql.*;
 /**
  * Simple example for JDBC and ORM studying
  *
- * To run H2 browser console run $PROJECT_DIR/h2db/h2.sh
+ * To run H2 browser console run $PROJECT_DIR/h2db/h2_web_console.sh(bat)
  */
 
 public class Main {
