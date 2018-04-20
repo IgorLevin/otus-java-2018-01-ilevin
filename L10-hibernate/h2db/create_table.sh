@@ -1,0 +1,2 @@
+#!/bin/sh
+java -cp h2-1.4.197.jar org.h2.tools.Shell -url "jdbc:h2:file:./test" -user sa -sql "CREATE TABLE IF NOT EXISTS RU_OTUS_L09_USERDATASET (id BIGINT(20) NOT NULL AUTO_INCREMENT, NAME VARCHAR(255), AGE INT);"
