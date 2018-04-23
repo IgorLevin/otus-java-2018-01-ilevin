@@ -28,4 +28,8 @@ public class AddressDataSetDAO {
         criteria.from(AddressDataSet.class);
         return session.createQuery(criteria).list();
     }
+
+    public void delete(AddressDataSet dataSet) {
+        session.delete(dataSet);
+    }
 }

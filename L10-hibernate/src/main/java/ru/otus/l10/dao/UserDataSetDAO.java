@@ -1,6 +1,7 @@
 package ru.otus.l10.dao;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import ru.otus.l10.dataset.UserDataSet;
 
@@ -42,6 +43,8 @@ public class UserDataSetDAO {
     }
 
     public void delete(UserDataSet dataSet) {
+        session.beginTransaction();
         session.delete(session.merge(dataSet));
+        session.getTransaction().commit();
     }
 }

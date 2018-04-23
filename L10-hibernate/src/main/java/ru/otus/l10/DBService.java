@@ -6,7 +6,7 @@ import ru.otus.l10.dataset.UserDataSet;
 
 import java.util.List;
 
-public interface DBService {
+public interface DBService extends AutoCloseable {
 
     String getLocalStatus();
 
@@ -25,6 +25,8 @@ public interface DBService {
     void delete(UserDataSet dataSet);
 
     void delete(PhoneDataSet dataSet);
+
+    void delete(AddressDataSet dataSet);
 
     void shutdown();
 }

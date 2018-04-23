@@ -14,6 +14,7 @@ import ru.otus.l10.dataset.UserDataSet;
 import ru.otus.l10.dao.UserDataSetDAO;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class DBServiceImpl implements DBService {
@@ -53,7 +54,9 @@ public class DBServiceImpl implements DBService {
 
     @Override
     public String getLocalStatus() {
-        return runInSession(session -> session.getTransaction().getStatus().name());
+        return runInSession(session -> {
+            return session.getTransaction().getStatus().name();
+        });
     }
 
     @Override
@@ -106,23 +109,36 @@ public class DBServiceImpl implements DBService {
 
     @Override
     public void delete(UserDataSet dataSet) {
-        try (Session session = sessionFactory.openSession()) {
+        runInSession((session) -> {
             UserDataSetDAO dao = new UserDataSetDAO(session);
             dao.delete(dataSet);
-        }
+        });
     }
 
     @Override
     public void delete(PhoneDataSet dataSet) {
-        try (Session session = sessionFactory.openSession()) {
+        runInSession((session) -> {
             PhoneDataSetDAO dao = new PhoneDataSetDAO(session);
             dao.delete(dataSet);
-        }
+        });
+    }
+
+    @Override
+    public void delete(AddressDataSet dataSet) {
+        runInSession((session) -> {
+            AddressDataSetDAO dao = new AddressDataSetDAO(session);
+            dao.delete(dataSet);
+        });
     }
 
     @Override
     public void shutdown() {
         sessionFactory.close();
+    }
+
+    @Override
+    public void close() throws Exception {
+        shutdown();
     }
 
     private <R> R runInSession(Function<Session, R> function) {
@@ -131,6 +147,14 @@ public class DBServiceImpl implements DBService {
             R result = function.apply(session);
             transaction.commit();
             return result;
+        }
+    }
+
+    private void runInSession(Consumer<Session> consumer) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            consumer.accept(session);
+            transaction.commit();
         }
     }
 }
