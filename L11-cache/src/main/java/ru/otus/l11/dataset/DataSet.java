@@ -1,8 +1,5 @@
 package ru.otus.l11.dataset;
 
-/**
- * Abstract base class used by {@link CustomExecutor}
- */
 public abstract class DataSet {
 
     private long id = -1;
