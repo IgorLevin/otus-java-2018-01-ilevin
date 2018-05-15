@@ -1,5 +1,9 @@
 package ru.otus.l12.servlet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.otus.l12.cache.CacheEngine;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -15,29 +19,24 @@ import java.util.Map;
 public class LoginServlet extends HttpServlet {
 
     public static final String LOGIN_PARAMETER_NAME = "login";
-    private static final String LOGIN_VARIABLE_NAME = "login";
+    public static final String SESSION_ATTRIBUTE_NAME = "login";
 
+    private static final String MSG_VARIABLE_NAME = "msg";
     private static final String LOGIN_PAGE_TEMPLATE = "login.html";
-    private static final String WRONG_LOGIN_PAGE_TEMPLATE = "wrong_login.html";
     private static final String ADMIN_LOGIN = "admin";
 
     private final TemplateProcessor templateProcessor;
-    private String login;
 
-    public LoginServlet(TemplateProcessor templateProcessor, String login) {
-        this.login = login;
+    private Logger log = LoggerFactory.getLogger(LoginServlet.class);
+
+    public LoginServlet(TemplateProcessor templateProcessor) {
         this.templateProcessor = templateProcessor;
     }
 
-    private String getPage(String login) throws IOException {
+    private String getLoginPage(String msg) throws IOException {
         Map<String, Object> pageVariables = new HashMap<>();
-        pageVariables.put(LOGIN_VARIABLE_NAME, login == null ? "" : login);
+        pageVariables.put(MSG_VARIABLE_NAME, msg);
         return templateProcessor.getPage(LOGIN_PAGE_TEMPLATE, pageVariables);
-    }
-
-    private String getPageWrongLogin() throws IOException {
-        Map<String, Object> pageVariables = new HashMap<>();
-        return templateProcessor.getPage(WRONG_LOGIN_PAGE_TEMPLATE, pageVariables);
     }
 
     public void doGet(HttpServletRequest request,
@@ -47,39 +46,25 @@ public class LoginServlet extends HttpServlet {
 
     public void doPost(HttpServletRequest request,
                        HttpServletResponse response) throws ServletException, IOException {
+
+        log.trace("Query: {}", request.getQueryString());
+
         String requestLogin = request.getParameter(LOGIN_PARAMETER_NAME);
 
         String page;
-        if (requestLogin == null || ADMIN_LOGIN.equals(requestLogin)) {
-            page = getPage(login); //save to the page
+        if (requestLogin == null) {
+            page = getLoginPage("");
+            request.getSession().setAttribute(SESSION_ATTRIBUTE_NAME, null);
+        } else if (ADMIN_LOGIN.equals(requestLogin)){
+            request.getSession().setAttribute(SESSION_ATTRIBUTE_NAME, requestLogin);
+            response.sendRedirect(request.getContextPath() + "/admin");
+            return;
         } else {
-            page = getPageWrongLogin();
+            page = getLoginPage("Пользователь не существует");
         }
 
-//        if (requestLogin != null) {
-//            saveToVariable(requestLogin);
-//            saveToSession(request, requestLogin); //request.getSession().getAttribute("login");
-//            saveToServlet(request, requestLogin); //request.getAttribute("login");
-//            saveToCookie(response, requestLogin); //request.getCookies();
-//        }
         setOK(response);
         response.getWriter().println(page);
-    }
-
-    private void saveToCookie(HttpServletResponse response, String requestLogin) {
-        response.addCookie(new Cookie("L12.1-login", requestLogin));
-    }
-
-    private void saveToServlet(HttpServletRequest request, String requestLogin) {
-        request.getServletContext().setAttribute("login", requestLogin);
-    }
-
-    private void saveToSession(HttpServletRequest request, String requestLogin) {
-        request.getSession().setAttribute("login", requestLogin);
-    }
-
-    private void saveToVariable(String requestLogin) {
-        login = requestLogin != null ? requestLogin : login;
     }
 
     private void setOK(HttpServletResponse response) {

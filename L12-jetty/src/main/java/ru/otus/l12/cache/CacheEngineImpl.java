@@ -23,7 +23,7 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
 
     private static final int TIME_THRESHOLD_MS = 5;
 
-    private final int maxElements;
+    private int maxElements;
     private final long lifeTimeMs;
     private final long idleTimeMs;
     private final boolean isEternal;
@@ -44,11 +44,11 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
     }
 
     @Override
-    public void put(CacheElement<K, V> element) {
+    public synchronized void put(CacheElement<K, V> element) {
 
         log.trace("Put element: {}-{}", element.getKey(), element.getValue());
 
-        if (elements.size() == maxElements) {
+        if (elements.size() >= maxElements) {
             K firstKey = elements.keySet().iterator().next();
             elements.remove(firstKey);
             log.warn("Cache size exceeded. Remove element: {}", firstKey);
@@ -75,7 +75,7 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
     }
 
     @Override
-    public V get(K key) {
+    public synchronized V get(K key) {
         SoftReference<CacheElement<K, V>> softRef = elements.get(key);
 
         CacheElement<K, V> element = softRef != null ? softRef.get() : null;
@@ -92,7 +92,7 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
     }
 
     @Override
-    public List<V> getAll() {
+    public synchronized List<V> getAll() {
         List<V> values = new ArrayList<>();
         for(K key : elements.keySet()) {
             V value = get(key);
@@ -117,6 +117,27 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
     public void dispose() {
         timer.cancel();
         elements.clear();
+    }
+
+    @Override
+    public int size() {
+        return elements.size();
+    }
+
+    @Override
+    public int capacity() {
+        return maxElements;
+    }
+
+    @Override
+    public synchronized void setCapacity(int size) {
+        if (size > 0) {
+            maxElements = size;
+            while (elements.size() >= maxElements) {
+                K firstKey = elements.keySet().iterator().next();
+                elements.remove(firstKey);
+            }
+        }
     }
 
     private TimerTask getTimerTask(final K key, Function<CacheElement<K, V>, Long> timeFunction) {

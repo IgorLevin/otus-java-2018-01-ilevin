@@ -1,5 +1,9 @@
 package ru.otus.l12.servlet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.otus.l12.cache.CacheEngine;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -13,43 +17,56 @@ import java.util.Map;
  */
 public class AdminServlet extends HttpServlet {
 
-    private static final String DEFAULT_USER_NAME = "UNKNOWN";
     private static final String ADMIN_PAGE_TEMPLATE = "admin.html";
 
+    private static final String USER_VARIABLE_NAME = "login";
+    private static final String CACHE_CAPACITY_VARIABLE_NAME = "cacheCapacity";
+    private static final String CACHE_NEW_CAPACITY_VARIABLE_NAME = "newCacheCapacity";
+
     private final TemplateProcessor templateProcessor;
+    private CacheEngine<?, ?> cacheEngine;
+
+    private Logger log = LoggerFactory.getLogger(AdminServlet.class);
 
     @SuppressWarnings("WeakerAccess")
-    public AdminServlet(TemplateProcessor templateProcessor) {
+    public AdminServlet(TemplateProcessor templateProcessor, CacheEngine<?, ?> cacheEngine) {
         this.templateProcessor = templateProcessor;
+        this.cacheEngine = cacheEngine;
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public AdminServlet() throws IOException {
-        this(new TemplateProcessor());
-    }
-
-    private static Map<String, Object> createPageVariablesMap(HttpServletRequest request) {
+    private String getAdminPage(String user) throws IOException {
         Map<String, Object> pageVariables = new HashMap<>();
-        pageVariables.put("method", request.getMethod());
-        pageVariables.put("URL", request.getRequestURL().toString());
-        pageVariables.put("locale", request.getLocale());
-        pageVariables.put("sessionId", request.getSession().getId());
-        pageVariables.put("parameters", request.getParameterMap().toString());
+        pageVariables.put(CACHE_CAPACITY_VARIABLE_NAME, cacheEngine.capacity());
+        pageVariables.put(USER_VARIABLE_NAME, user);
+        return templateProcessor.getPage(ADMIN_PAGE_TEMPLATE, pageVariables);
+    }
 
-        //let's get login from session
-        String login = (String) request.getSession().getAttribute(LoginServlet.LOGIN_PARAMETER_NAME);
-        pageVariables.put("login", login != null ? login : DEFAULT_USER_NAME);
-
-        return pageVariables;
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
     }
 
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response) throws ServletException, IOException {
 
-        Map<String, Object> pageVariables = createPageVariablesMap(request);
+        String login = (String)request.getSession().getAttribute(LoginServlet.SESSION_ATTRIBUTE_NAME);
+        if (login == null || login.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        String newCapacity = request.getParameter(CACHE_NEW_CAPACITY_VARIABLE_NAME);
+        if (newCapacity != null && !newCapacity.isEmpty()) {
+            try {
+                Integer capacity = Integer.valueOf(newCapacity);
+                cacheEngine.setCapacity(capacity);
+            } catch (NumberFormatException e) {
+                log.error("Wrong cache capacity value");
+            }
+        }
 
         response.setContentType("text/html;charset=utf-8");
-        String page = templateProcessor.getPage(ADMIN_PAGE_TEMPLATE, pageVariables);
+        String page = getAdminPage(login);
         response.getWriter().println(page);
         response.setStatus(HttpServletResponse.SC_OK);
     }
