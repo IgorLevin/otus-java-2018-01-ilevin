@@ -1,0 +1,37 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="messageSystem" class="ru.otus.l15.messageSystem.MessageSystem" destroy-method="dispose"/>
+
+    <bean id="messageSystemContext" class="ru.otus.l15.messageSystem.MessageSystemContext">
+        <constructor-arg name="messageSystem" ref="messageSystem"/>
+    </bean>
+
+    <bean id="address" class="ru.otus.l15.messageSystem.Address" scope="prototype"/>
+
+    <bean id="cacheEngine" class="ru.otus.l15.cache.CacheEngineImpl" init-method="init">
+        <constructor-arg name="maxElements" value="1000"/>
+        <constructor-arg name="lifeTimeMs" value="0"/>
+        <constructor-arg name="idleTimeMs" value="0"/>
+        <constructor-arg name="isEternal" value="true"/>
+        <constructor-arg name="address" ref="address"/>
+        <constructor-arg name="context" ref="messageSystemContext"/>
+    </bean>
+
+    <bean id="dbService" class="ru.otus.l15.db.DBServiceCachedImpl" init-method="init" destroy-method="close">
+        <constructor-arg name="context" ref="messageSystemContext"/>
+        <constructor-arg name="address" ref="address"/>
+        <constructor-arg name="cache" ref="cacheEngine"/>
+        <constructor-arg name="emulateLoad" value="true"/>
+    </bean>
+
+    <bean id="frontendService" class="ru.otus.l15.front.FrontendServiceImpl" init-method="init" depends-on="dbService,cacheEngine">
+        <constructor-arg name="context" ref="messageSystemContext"/>
+        <constructor-arg name="address" ref="address"/>
+    </bean>
+
+    <bean id="templateProcessor" class="ru.otus.l15.servlet.TemplateProcessor"/>
+
+</beans>
