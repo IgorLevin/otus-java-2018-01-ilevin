@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Admin</title>
+    <script src="js/cache_state.js"></script>
+</head>
+<body onload='setInterval(function(){refresh()}, 500); refresh();'>
+<div class="top">
+    <img src="logo.png"/>
+    <br/>
+</div>
+
+<hr>
+
+<h1>Cache State</h1>
+
+<p>Hit: <span id='hit'></span></p>
+
+<p>Miss: <span id='miss'></span></p>
+
+<p>Cache size: <span id='cacheSize'></span></p>
+
+<p>Cache capacity: <span id='cacheCapacity'></span></p>
+
+<div class="cache_settings">
+    <form action="/admin" method="POST">
+        New capacity: <input type="text" name="newCacheCapacity"/>
+        <input type="submit" value="Set">
+    </form>
+</div>
+
+<hr>
+
+<h2>User:</h2>
+<p>${login}</p>
+
+<div class="logout">
+    <form action="/login" method="POST">
+        <input type="submit" value="Logout">
+    </form>
+</div>
+
+</body>
+</html>
