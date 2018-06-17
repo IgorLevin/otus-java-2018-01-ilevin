@@ -11,7 +11,7 @@ public class MsgGetCacheInfoAnswer  extends Msg {
         super(MsgGetCacheInfoAnswer.class);
     }
 
-    MsgGetCacheInfoAnswer(CacheInfo info) {
+    public MsgGetCacheInfoAnswer(CacheInfo info) {
         super(MsgGetCacheInfoAnswer.class);
         this.info = info;
     }

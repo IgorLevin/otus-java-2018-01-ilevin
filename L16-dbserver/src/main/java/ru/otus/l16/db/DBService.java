@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface DBService extends AutoCloseable {
 
+    void init();
+
     String getMetaData();
 
     void prepareTables() throws SQLException;

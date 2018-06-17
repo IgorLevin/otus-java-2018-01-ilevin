@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.otus.l16.app.Msg;
 import ru.otus.l16.app.MsgWorker;
 import ru.otus.l16.channel.SocketMsgWorker;
+import ru.otus.l16.messages.*;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -42,7 +43,6 @@ public class SocketMsgServer implements SocketMsgServerMBean {
                 workers.add(client);
             }
         }
-
     }
 
     @SuppressWarnings("InfiniteLoopStatement")
@@ -52,8 +52,37 @@ public class SocketMsgServer implements SocketMsgServerMBean {
                 Msg msg = client.pool();
                 while (msg != null) {
                     log.trace("Got message: {}", msg);
-                    // TODO как-то найти адресата сообщения и переправить сообщение ему
-                    client.send(msg);  // эхо
+                    if (msg instanceof MsgDbHandshake) {
+                        log.trace("Handshake from DB");
+                        client.setDbServiceConnection(true);
+                    }
+                    else if (msg instanceof MsgFeHandshake)
+                    {
+                        log.trace("Handshake from FE");
+                        client.setDbServiceConnection(false);
+                    }
+                    else if (msg instanceof MsgGetUserId ||
+                             msg instanceof MsgGetCacheInfo ||
+                             msg instanceof MsgSetCacheCapacity)
+                    {
+                        for (MsgWorker worker : workers) {
+                            if (worker.isDbServiceConnection()) {
+                                worker.send(msg);
+                            }
+                        }
+                    }
+                    else if (msg instanceof MsgGetUserIdAnswer ||
+                             msg instanceof MsgGetCacheInfoAnswer)
+                    {
+                        for (MsgWorker worker : workers) {
+                            if (!worker.isDbServiceConnection()) {
+                                worker.send(msg);
+                            }
+                        }
+                    }
+                    else {
+                        client.send(msg);  // эхо
+                    }
                     msg = client.pool();
                 }
             }

@@ -8,9 +8,9 @@ import ru.otus.l16.app.Msg;
 public class MsgGetUserIdAnswer extends Msg {
 
     private final String name;
-    private final int id;
+    private final long id;
 
-    public MsgGetUserIdAnswer(String name, int id) {
+    public MsgGetUserIdAnswer(String name, long id) {
         super(MsgGetUserIdAnswer.class);
         this.name = name;
         this.id = id;
@@ -20,7 +20,7 @@ public class MsgGetUserIdAnswer extends Msg {
         return name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 }

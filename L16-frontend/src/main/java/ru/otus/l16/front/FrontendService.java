@@ -20,5 +20,5 @@ public interface FrontendService {
 
     void getCacheInfo(CacheInfoListener listener);
 
-    void onCacheInfo(CacheInfo info, CacheInfoListener listener);
+    void onCacheInfo(CacheInfo info);
 }

@@ -8,10 +8,10 @@ import ru.otus.l16.app.LoginProcessListener;
 import ru.otus.l16.app.Msg;
 import ru.otus.l16.channel.ClientSocketMsgWorker;
 import ru.otus.l16.channel.SocketMsgWorker;
-import ru.otus.l16.messages.MsgGetCacheInfo;
-import ru.otus.l16.messages.MsgGetUserId;
-import ru.otus.l16.messages.MsgSetCacheCapacity;
+import ru.otus.l16.messages.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,6 +26,7 @@ public class FrontendServiceImpl implements FrontendService {
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private LoginProcessListener loginProcessListener;
+    private List<CacheInfoListener> cacheInfoListeners = new ArrayList<>();
 
     private Logger log = LoggerFactory.getLogger(FrontendServiceImpl.class);
 
@@ -37,22 +38,13 @@ public class FrontendServiceImpl implements FrontendService {
         executorService.submit(() -> {
             try {
                 while (true) {
-                    Object msg = client.take();
-                    log.debug("Message received: {}", msg.toString());
+                    Msg msg = client.take();
+                    processMessage(msg);
                 }
             } catch (InterruptedException e) {
                 log.error("WTF ", e);
             }
         });
-
-//        int count = 0;
-//        while (count < MAX_MESSAGES_COUNT) {
-//            Msg msg = new PingMsg();
-//            client.send(msg);
-//            log.debug("Message sent: {}", msg.toString());
-//            Thread.sleep(PAUSE_MS);
-//            count++;
-//        }
     }
 
     @Override
@@ -60,6 +52,28 @@ public class FrontendServiceImpl implements FrontendService {
         client.close();
         executorService.shutdownNow();
         log.trace("close");
+    }
+
+    private void processMessage(Msg msg) {
+        log.debug("Message received: {}", msg.toString());
+
+        if (msg instanceof MsgGetUserIdAnswer) {
+            MsgGetUserIdAnswer resp = (MsgGetUserIdAnswer)msg;
+            if (resp.getId() == -1) {
+                onWrongUser();
+            } else {
+                onUserLogged();
+            }
+        }
+        else if (msg instanceof MsgGetCacheInfoAnswer)
+        {
+            MsgGetCacheInfoAnswer resp = (MsgGetCacheInfoAnswer)msg;
+            onCacheInfo(resp.getInfo());
+        }
+        else
+        {
+            log.info("Unsupported message");
+        }
     }
 
     @Override
@@ -93,16 +107,21 @@ public class FrontendServiceImpl implements FrontendService {
     }
 
     @Override
-    public void getCacheInfo(CacheInfoListener listener) {
+    public synchronized void getCacheInfo(CacheInfoListener listener) {
         log.trace("getCacheInfo");
+        if (!cacheInfoListeners.contains(listener)) {
+            cacheInfoListeners.add(listener);
+        }
         Msg msg = new MsgGetCacheInfo();
         sendMessage(msg);
     }
 
     @Override
-    public void onCacheInfo(CacheInfo info, CacheInfoListener listener) {
-        if (listener != null) {
-            listener.onCacheInfo(info);
+    public synchronized void onCacheInfo(CacheInfo info) {
+        for (CacheInfoListener listener : cacheInfoListeners) {
+            if (listener != null) {
+                listener.onCacheInfo(info);
+            }
         }
     }
 

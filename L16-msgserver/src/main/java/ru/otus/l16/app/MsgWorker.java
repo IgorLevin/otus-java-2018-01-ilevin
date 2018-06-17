@@ -11,4 +11,8 @@ public interface MsgWorker {
     Msg take() throws InterruptedException;
 
     void close();
+
+    boolean isDbServiceConnection();
+
+    void setDbServiceConnection(boolean isDbConnection);
 }

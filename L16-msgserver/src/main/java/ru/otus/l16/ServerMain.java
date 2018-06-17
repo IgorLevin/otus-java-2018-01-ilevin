@@ -2,10 +2,12 @@ package ru.otus.l16;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.l16.runner.ProcessRunnerImpl;
 import ru.otus.l16.server.SocketMsgServer;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,7 +21,7 @@ public class ServerMain {
 
     private static final Logger log = LoggerFactory.getLogger(ServerMain.class);
 
-    //private static final String CLIENT_START_COMMAND = "java -jar ../L16.1.2-client/target/client.jar";
+    private static final String START_DB_SERVICE_COMMAND = "java -jar ../L16-dbserver/target/L16-dbserver.jar";
     private static final int CLIENT_START_DELAY_SEC = 5;
 
     public static void main(String[] args) throws Exception {
@@ -45,11 +47,11 @@ public class ServerMain {
 
     private void startClient(ScheduledExecutorService executorService) {
         executorService.schedule(() -> {
-//            try {
-//                new ProcessRunnerImpl().start(CLIENT_START_COMMAND);
-//            } catch (IOException e) {
-//                logger.log(Level.SEVERE, e.getMessage());
-//            }
+            try {
+                new ProcessRunnerImpl().start(START_DB_SERVICE_COMMAND);
+            } catch (IOException e) {
+                log.error("Starting DB Service error", e);
+            }
         }, CLIENT_START_DELAY_SEC, TimeUnit.SECONDS);
     }
 

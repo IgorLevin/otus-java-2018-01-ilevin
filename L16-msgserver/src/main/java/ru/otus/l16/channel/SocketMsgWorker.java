@@ -29,6 +29,7 @@ public class SocketMsgWorker implements MsgWorker, Closeable {
 
     private final ExecutorService executor;
     private final Socket socket;
+    private boolean isDbConnection;
 
     private static final Logger log = LoggerFactory.getLogger(SocketMsgWorker.class);
 
@@ -61,6 +62,16 @@ public class SocketMsgWorker implements MsgWorker, Closeable {
             log.error("Can't close socket ", e);
         }
         executor.shutdownNow();
+    }
+
+    @Override
+    public boolean isDbServiceConnection() {
+        return isDbConnection;
+    }
+
+    @Override
+    public void setDbServiceConnection(boolean isDbConnection) {
+        this.isDbConnection = isDbConnection;
     }
 
     public void init() {
