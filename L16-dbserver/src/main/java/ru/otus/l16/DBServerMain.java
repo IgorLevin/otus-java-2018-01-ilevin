@@ -23,7 +23,6 @@ public class DBServerMain implements DBServerMBean {
     private static final String HOST = "localhost";
     private static final int PORT = 5050;
     private static final int PAUSE_MS = 5000;
-    private static final int MAX_MESSAGES_COUNT = 2;
     private static final int CACHE_SIZE = 5000;
 
     private CacheEngine<Long, UserDataSet> cacheEngine;
@@ -69,14 +68,6 @@ public class DBServerMain implements DBServerMBean {
             while (isRunning()) {
                 Thread.sleep(PAUSE_MS);
             }
-//            int count = 0;
-//            while (count < MAX_MESSAGES_COUNT) {
-//                msg = new PingMsg();
-//                client.send(msg);
-//                log.debug("Message sent: {}", msg.toString());
-//                Thread.sleep(PAUSE_MS);
-//                count++;
-//            }
             client.close();
             executorService.shutdownNow();
         }
