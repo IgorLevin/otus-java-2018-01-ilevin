@@ -1,4 +1,4 @@
-package ru.otus.l7;
+package ru.otus.l7.banknotes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,27 +10,27 @@ public class BanknotesSelection {
 
     public BanknotesSelection() {}
 
-    public void putBanknotes(int nominal, int numOfBanknotes) {
+    public void putBanknotes(Nominal nominal, int numOfBanknotes) {
         if (hasNominal(nominal)) {
             getNominal(nominal).putBanknotes(numOfBanknotes);
         } else {
             content.add(new BunchOfBanknotes(nominal, numOfBanknotes));
-            content.sort((o1, o2) -> o2.getNominal() - o1.getNominal());
+            content.sort((o1, o2) -> o2.getNominal().asNnt() - o1.getNominal().asNnt());
         }
     }
 
-    public void putBanknote(int nominal) {
+    public void putBanknote(Nominal nominal) {
         putBanknotes(nominal, 1);
     }
 
-    public boolean getBanknote(int nominal) {
+    public boolean getBanknote(Nominal nominal) {
         if (isEmpty() || hasNominal(nominal)) {
             return false;
         }
         return getNominal(nominal).getBanknote();
     }
 
-    public int getBanknotes(int nominal, int numOfBanknotes) {
+    public int getBanknotes(Nominal nominal, int numOfBanknotes) {
         if (isEmpty() || !hasNominal(nominal)) {
             return 0;
         }
@@ -42,14 +42,14 @@ public class BanknotesSelection {
         return result;
     }
 
-    public int getBanknotes(int nominal) {
+    public int getBanknotes(Nominal nominal) {
         if (!isEmpty() && hasNominal(nominal)) {
             return 0;
         }
         return getBanknotes(nominal, getNominal(nominal).getNumOfBanknotes());
     }
 
-    public int getNumberOfBanknotes(int nominal) {
+    public int getNumberOfBanknotes(Nominal nominal) {
         BunchOfBanknotes bb = getNominal(nominal);
         if (bb != null) {
             return bb.getNumOfBanknotes();
@@ -58,7 +58,7 @@ public class BanknotesSelection {
         }
     }
 
-    public boolean hasNominal(int nominal) {
+    public boolean hasNominal(Nominal nominal) {
         for (BunchOfBanknotes bb : content) {
             if (bb.getNominal() == nominal) {
                 return true;
@@ -67,7 +67,7 @@ public class BanknotesSelection {
         return false;
     }
 
-    private BunchOfBanknotes getNominal(int nominal) {
+    private BunchOfBanknotes getNominal(Nominal nominal) {
         for (BunchOfBanknotes bb : content) {
             if (bb.getNominal() == nominal) {
                 return bb;

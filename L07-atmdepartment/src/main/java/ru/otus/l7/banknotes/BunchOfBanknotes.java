@@ -1,16 +1,16 @@
-package ru.otus.l7;
+package ru.otus.l7.banknotes;
 
 public class BunchOfBanknotes {
 
-    private int nominal;
+    private Nominal nominal;
     private int numOfBanknotes;
 
-    public BunchOfBanknotes(int nominal, int numOfBanknotes) {
+    public BunchOfBanknotes(Nominal nominal, int numOfBanknotes) {
         this.nominal = nominal;
         this.numOfBanknotes = numOfBanknotes;
     }
 
-    public int getNominal() {
+    public Nominal getNominal() {
         return nominal;
     }
 
@@ -58,7 +58,7 @@ public class BunchOfBanknotes {
     }
 
     public int getSum() {
-        return numOfBanknotes * nominal;
+        return numOfBanknotes * nominal.asNnt();
     }
 
     @Override

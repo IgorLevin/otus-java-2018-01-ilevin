@@ -1,23 +1,24 @@
 package ru.otus.l7.atm;
 
-import ru.otus.l7.BunchOfBanknotes;
+import ru.otus.l7.banknotes.BunchOfBanknotes;
+import ru.otus.l7.banknotes.Nominal;
 
 public class AtmCell extends BunchOfBanknotes {
 
     public static final int DEFAULT_CAPACITY = 100;
     private final int capacity;
 
-    public AtmCell(int nominal) {
+    public AtmCell(Nominal nominal) {
         super(nominal, 0);
         this.capacity = DEFAULT_CAPACITY;
     }
 
-    public AtmCell(int nominal, int capacity) {
+    public AtmCell(Nominal nominal, int capacity) {
         super(nominal, 0);
         this.capacity = capacity;
     }
 
-    private AtmCell(int nominal, int capacity, int numberOfBanknotes) {
+    private AtmCell(Nominal nominal, int capacity, int numberOfBanknotes) {
         super(nominal, numberOfBanknotes);
         this.capacity = capacity;
     }
