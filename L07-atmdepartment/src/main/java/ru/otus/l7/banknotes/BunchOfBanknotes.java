@@ -1,5 +1,8 @@
 package ru.otus.l7.banknotes;
 
+/**
+ * Набор банкнот одного номинала
+ */
 public class BunchOfBanknotes {
 
     private Nominal nominal;

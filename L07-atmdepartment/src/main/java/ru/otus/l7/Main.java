@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.l7.atm.ATM;
 import ru.otus.l7.atm.ATMDepartment;
-import ru.otus.l7.atm.AtmWithdrawException;
+import ru.otus.l7.atm.ATMWithdrawException;
 import ru.otus.l7.banknotes.BanknotesSelection;
 import ru.otus.l7.banknotes.Nominal;
 
@@ -119,7 +119,7 @@ public class Main {
             System.out.println("  Success.");
             System.out.println("  Take: " + bs.toString() + "\n");
             log.info("Withdrawn: {}", bs.toString());
-        } catch (AtmWithdrawException e) {
+        } catch (ATMWithdrawException e) {
             System.out.println("  Requested sum can't be withdrawn");
             log.error("Requested sum can't be withdrawn. ", e);
         } catch (Exception e) {

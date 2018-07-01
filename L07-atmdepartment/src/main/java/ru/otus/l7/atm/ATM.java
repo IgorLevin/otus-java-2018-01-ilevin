@@ -8,17 +8,17 @@ import java.util.*;
 
 public class ATM {
 
-    private List<AtmCell> cells = new ArrayList<>();
-    private AtmStrategy strategy;
+    private List<ATMCell> cells = new ArrayList<>();
+    private ATMStrategy strategy;
     private final String name;
     private static int atmIndex = 0;
 
-    public ATM(AtmStrategy strategy) {
+    public ATM(ATMStrategy strategy) {
         this.strategy = strategy;
         this.name = "ATM#" + atmIndex++;
     }
 
-    public ATM(AtmStrategy strategy, String name) {
+    public ATM(ATMStrategy strategy, String name) {
         this.strategy = strategy;
         this.name = name;
     }
@@ -26,9 +26,9 @@ public class ATM {
     public void load(BanknotesSelection bs) {
         List<BunchOfBanknotes> banknotes = bs.getContent();
         for (BunchOfBanknotes bunch : banknotes) {
-            AtmCell cell = getCell(bunch.getNominal());
+            ATMCell cell = getCell(bunch.getNominal());
             if (cell == null) {
-                cell = new AtmCell(bunch.getNominal());
+                cell = new ATMCell(bunch.getNominal());
                 cells.add(cell);
             }
             int loaded = cell.loadBanknotes(bunch.getNumOfBanknotes());
@@ -39,20 +39,20 @@ public class ATM {
     public BanknotesSelection empty() {
         if (isEmpty()) return null;
         BanknotesSelection bs = new BanknotesSelection();
-        for (AtmCell cell : cells) {
+        for (ATMCell cell : cells) {
             bs.putBanknotes(cell.getNominal(), cell.getNumOfBanknotes());
         }
         cells.clear();
         return bs;
     }
 
-    public BanknotesSelection withdraw(int sumToWithdraw) throws AtmWithdrawException {
+    public BanknotesSelection withdraw(int sumToWithdraw) throws ATMWithdrawException {
         if (cells.isEmpty() || strategy == null) throw new RuntimeException("System error");
-        List<AtmCell> tmp = copyCells(cells);
+        List<ATMCell> tmp = copyCells(cells);
         BanknotesSelection bs = strategy.withdraw(cells, sumToWithdraw);
         if (bs == null) {
             cells = tmp;
-            throw new AtmWithdrawException();
+            throw new ATMWithdrawException();
         } else {
             return bs;
         }
@@ -64,7 +64,7 @@ public class ATM {
 
     public BanknotesSelection getState() {
         BanknotesSelection bs = new BanknotesSelection();
-        for (AtmCell cell : cells) {
+        for (ATMCell cell : cells) {
             bs.putBanknotes(cell.getNominal(), cell.getNumOfBanknotes());
         }
         return bs;
@@ -72,7 +72,7 @@ public class ATM {
 
     public int getTotal() {
         int total = 0;
-        for (AtmCell cell : cells) {
+        for (ATMCell cell : cells) {
             total += cell.getSum();
         }
         return total;
@@ -84,7 +84,7 @@ public class ATM {
     }
 
     public void putBanknotes(Nominal nominal, int numOfBanknotes) {
-        for(AtmCell cell : cells) {
+        for(ATMCell cell : cells) {
             if (cell.getNominal() == nominal) {
                 cell.putBanknotes(numOfBanknotes);
                 break;
@@ -93,7 +93,7 @@ public class ATM {
     }
 
     public void putBanknote(Nominal nominal) throws RuntimeException {
-        for(AtmCell cell : cells) {
+        for(ATMCell cell : cells) {
             if (cell.getNominal() == nominal) {
                 if (cell.getNumOfBanknotes() == cell.getCapacity()) {
                     throw new RuntimeException("Cell is full");
@@ -104,16 +104,16 @@ public class ATM {
         }
     }
 
-    private List<AtmCell> copyCells(List<AtmCell> cells) {
-        List<AtmCell> cellsCopy = new ArrayList<>();
-        for (AtmCell cell : cells) {
+    private List<ATMCell> copyCells(List<ATMCell> cells) {
+        List<ATMCell> cellsCopy = new ArrayList<>();
+        for (ATMCell cell : cells) {
             cellsCopy.add(cell.clone());
         }
         return cellsCopy;
     }
 
-    private AtmCell getCell(Nominal nominal) {
-        for (AtmCell cell : cells) {
+    private ATMCell getCell(Nominal nominal) {
+        for (ATMCell cell : cells) {
             if (cell.getNominal() == nominal) {
                 return cell;
             }

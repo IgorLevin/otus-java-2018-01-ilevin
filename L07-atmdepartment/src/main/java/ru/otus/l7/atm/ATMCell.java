@@ -3,22 +3,22 @@ package ru.otus.l7.atm;
 import ru.otus.l7.banknotes.BunchOfBanknotes;
 import ru.otus.l7.banknotes.Nominal;
 
-public class AtmCell extends BunchOfBanknotes {
+public class ATMCell extends BunchOfBanknotes {
 
     public static final int DEFAULT_CAPACITY = 100;
     private final int capacity;
 
-    public AtmCell(Nominal nominal) {
+    public ATMCell(Nominal nominal) {
         super(nominal, 0);
         this.capacity = DEFAULT_CAPACITY;
     }
 
-    public AtmCell(Nominal nominal, int capacity) {
+    public ATMCell(Nominal nominal, int capacity) {
         super(nominal, 0);
         this.capacity = capacity;
     }
 
-    private AtmCell(Nominal nominal, int capacity, int numberOfBanknotes) {
+    private ATMCell(Nominal nominal, int capacity, int numberOfBanknotes) {
         super(nominal, numberOfBanknotes);
         this.capacity = capacity;
     }
@@ -46,7 +46,7 @@ public class AtmCell extends BunchOfBanknotes {
     }
 
     @Override
-    protected AtmCell clone() {
-        return new AtmCell(getNominal(), capacity, getNumOfBanknotes());
+    protected ATMCell clone() {
+        return new ATMCell(getNominal(), capacity, getNumOfBanknotes());
     }
 }

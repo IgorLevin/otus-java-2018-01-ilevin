@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Набор банкнот разных номиналов. Состоит из списка {@link BunchOfBanknotes}
+ */
 public class BanknotesSelection {
 
     private List<BunchOfBanknotes> content = new ArrayList<>();

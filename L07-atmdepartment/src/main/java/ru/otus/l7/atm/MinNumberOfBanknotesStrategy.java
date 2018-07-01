@@ -5,16 +5,16 @@ import ru.otus.l7.banknotes.Nominal;
 
 import java.util.List;
 
-public class MinNumberOfBanknotesStrategy implements AtmStrategy {
+public class MinNumberOfBanknotesStrategy implements ATMStrategy {
 
     @Override
-    public BanknotesSelection withdraw(List<AtmCell> cells, int sumToWithdraw) {
+    public BanknotesSelection withdraw(List<ATMCell> cells, int sumToWithdraw) {
 
         BanknotesSelection bs = new BanknotesSelection();
 
         int sumLeft = sumToWithdraw;
 
-        for (AtmCell cell : cells) {
+        for (ATMCell cell : cells) {
             Nominal nominal = cell.getNominal();
             while (sumLeft > 0 && nominal.asNnt() <= sumLeft && !cell.isEmpty()) {
                 cell.pullBanknote();
